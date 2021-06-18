@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 
 import SignUp from './views/sign-up';
 import SignIn from './views/sign-in';
+import Main from './views/main';
 
 const App = () => (
 	<Router>
@@ -12,6 +13,9 @@ const App = () => (
 			</Route>
 			<Route path="/sign-in">
 				<SignIn />
+			</Route>
+			<Route path="/">
+				<Main />
 			</Route>
 		</Switch>
 	</Router>

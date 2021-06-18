@@ -8,10 +8,14 @@ const { Password } = Input;
 const SignUp = () => (
 	<Row style={{ minHeight: '100vh' }} justify="center" align="middle">
 		<Space direction="vertical" size="large">
-			<Space direction="vertical" size={0}>
-				<Title level={1}>Sign Up!</Title>
-				<Title level={4}>Please fill out the information below to sign up</Title>
-			</Space>
+			<header>
+				<Title level={1} style={{ marginBottom: '8px' }}>
+					Sign Up!
+				</Title>
+				<Title level={4} style={{ marginTop: '8px' }}>
+					Please fill out the information below to sign up
+				</Title>
+			</header>
 			<Input addonBefore="Name" />
 			<Input addonBefore="Email" />
 			<Password addonBefore="Password" />
