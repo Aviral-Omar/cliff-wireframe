@@ -11,11 +11,13 @@ const App = () => {
 	const setToken = token => {
 		localStorage.setItem('authToken', token);
 		setAuthToken(token);
+		return token;
 	};
 
 	const removeToken = () => {
 		localStorage.removeItem('authToken');
 		setAuthToken(null);
+		return null;
 	};
 
 	return (
@@ -26,7 +28,11 @@ const App = () => {
 					{authToken ? <Redirect to="/" /> : <SignInForm setToken={setToken} />}
 				</Route>
 				<Route path="/">
-					{!authToken ? <Redirect to="/sign-in" /> : <Main removeToken={removeToken} />}
+					{!authToken ? (
+						<Redirect to="/sign-in" />
+					) : (
+						<Main authToken={authToken} removeToken={removeToken} />
+					)}
 				</Route>
 			</Switch>
 		</Router>

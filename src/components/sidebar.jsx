@@ -1,24 +1,36 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Layout, Menu, Avatar, Row, Col, Typography, Button } from 'antd';
-import { Link, Redirect } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 const { Sider } = Layout;
 
 const Sidebar = props => {
-	const [redirect, setRedirect] = useState(null);
-	const signOut = () => {
-		props.removeToken();
-		setRedirect('/sign-in');
-	};
-	return redirect ? (
-		<Redirect to={redirect} />
-	) : (
+	const [name, setName] = useState('');
+
+	const signOut = () => props.removeToken();
+
+	useEffect(() => {
+		const getName = async () => {
+			const response = await fetch('http://localhost:8080/user-name', {
+				method: 'GET',
+				headers: {
+					Authorization: props.authToken,
+				},
+			});
+			if (response.status === 200) {
+				return setName(await response.text());
+			}
+			return signOut();
+		};
+		getName();
+	}, []);
+
+	return (
 		<Sider
 			width={240}
 			breakpoint="md"
 			collapsedWidth={0}
 			collapsible
-			trigger={null}
 			style={{ backgroundColor: 'white' }}
 		>
 			<Row justify="space-around" align="middle" style={{ margin: '16px 0px' }}>
@@ -27,7 +39,7 @@ const Sidebar = props => {
 				</Avatar>
 				<Col>
 					<Typography.Title level={4} style={{ marginBottom: '0px' }}>
-						Aviral Omar
+						{name}
 					</Typography.Title>
 					<Button type="text" onClick={signOut}>
 						Sign Out

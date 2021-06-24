@@ -1,13 +1,11 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Typography, Space, Input, Row, Col, Checkbox, Button, Form } from 'antd';
-import { Link, Redirect } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 const { Title } = Typography;
 const { Password } = Input;
 
 const SignInForm = props => {
-	const [redirect, setRedirect] = useState(null);
-
 	const span = {
 		xl: 8,
 		lg: 10,
@@ -28,8 +26,8 @@ const SignInForm = props => {
 				body: JSON.stringify(values),
 			});
 			if (response.status === 200) {
-				props.setToken(await response.text());
-				setRedirect('/');
+				const token = await response.text();
+				props.setToken(token);
 			} else if (response.status >= 400) {
 				throw Error(response.statusText);
 			}
@@ -38,9 +36,7 @@ const SignInForm = props => {
 		}
 	};
 
-	return redirect ? (
-		<Redirect to={redirect} />
-	) : (
+	return (
 		<Row style={{ minHeight: '100vh' }} justify="space-around" align="middle">
 			<Col {...span}>
 				<Space direction="vertical" size="large" style={{ width: '100%' }}>
