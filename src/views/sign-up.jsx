@@ -29,7 +29,7 @@ const SignUpForm = () => {
 			});
 			if (response.status === 201) {
 				setRedirect('/sign-in');
-			} else if (!response.ok) {
+			} else if (response.status >= 400) {
 				throw Error(response.statusText);
 			}
 		} catch (err) {

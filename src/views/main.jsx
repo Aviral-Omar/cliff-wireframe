@@ -6,11 +6,11 @@ import Home from '../components/home/home';
 import Metrics from '../components/metrics/metrics';
 import Sidebar from '../components/sidebar';
 
-const Main = () => {
+const Main = props => {
 	const { path } = useRouteMatch();
 	return (
 		<Layout style={{ minHeight: '100vh' }}>
-			<Sidebar />
+			<Sidebar {...props} />
 			<Switch>
 				<Route exact path={[`${path}`, `${path}home`]}>
 					<Home />

@@ -5,7 +5,7 @@ import { Link, Redirect } from 'react-router-dom';
 const { Title } = Typography;
 const { Password } = Input;
 
-const SignInForm = () => {
+const SignInForm = props => {
 	const [redirect, setRedirect] = useState(null);
 
 	const span = {
@@ -28,9 +28,9 @@ const SignInForm = () => {
 				body: JSON.stringify(values),
 			});
 			if (response.status === 200) {
-				localStorage.setItem('authToken', await response.text());
-				setRedirect('/metrics');
-			} else if (!response.ok) {
+				props.setToken(await response.text());
+				setRedirect('/');
+			} else if (response.status >= 400) {
 				throw Error(response.statusText);
 			}
 		} catch (err) {
