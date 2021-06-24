@@ -1,18 +1,18 @@
 import React from 'react';
 import { BrowserRouter as Router, Switch, Route } from 'react-router-dom';
 
-import SignUp from './views/sign-up';
-import SignIn from './views/sign-in';
+import SignUpForm from './views/sign-up';
+import SignInForm from './views/sign-in';
 import Main from './views/main';
 
 const App = () => (
 	<Router>
 		<Switch>
 			<Route path="/sign-up">
-				<SignUp />
+				<SignUpForm />
 			</Route>
 			<Route path="/sign-in">
-				<SignIn />
+				<SignInForm />
 			</Route>
 			<Route path="/">
 				<Main />

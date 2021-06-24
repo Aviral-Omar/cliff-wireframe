@@ -1,30 +1,78 @@
-import React from 'react';
-import { Typography, Space, Input, Row, Checkbox, Button } from 'antd';
-import { Link } from 'react-router-dom';
+import React, { useState } from 'react';
+import { Typography, Space, Input, Row, Col, Checkbox, Button, Form } from 'antd';
+import { Link, Redirect } from 'react-router-dom';
 
 const { Title } = Typography;
 const { Password } = Input;
 
-const SignIn = () => (
-	<Row style={{ minHeight: '100vh' }} justify="center" align="middle">
-		<Space direction="vertical" size="large">
-			<header>
-				<Title level={1} style={{ marginBottom: '8px' }}>
-					Sign In!
-				</Title>
-				<Title level={4} style={{ marginTop: '8px' }}>
-					Please enter your credentials below
-				</Title>
-			</header>
-			<Input addonBefore="Email" />
-			<Password addonBefore="Password" />
-			<Checkbox>Remember Me</Checkbox>
-			<Button type="primary" size="large" block>
-				Sign In
-			</Button>
-			<Link to="/sign-up">New User? Sign up here!</Link>
-		</Space>
-	</Row>
-);
+const SignInForm = () => {
+	const [redirect, setRedirect] = useState(null);
 
-export default SignIn;
+	const span = {
+		xl: 8,
+		lg: 10,
+		md: 12,
+		sm: 18,
+		xs: 20,
+	};
+	const layout = { labelCol: { span: 8 }, wrapperCol: { span: 16 } };
+	const tailLayout = { wrapperCol: { span: 24 } };
+
+	const submitForm = async values => {
+		try {
+			const response = await fetch('http://localhost:8080/sign-in', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify(values),
+			});
+			if (response.status === 200) {
+				localStorage.setItem('authToken', await response.text());
+				setRedirect('/metrics');
+			} else if (!response.ok) {
+				throw Error(response.statusText);
+			}
+		} catch (err) {
+			console.log(err);
+		}
+	};
+
+	return redirect ? (
+		<Redirect to={redirect} />
+	) : (
+		<Row style={{ minHeight: '100vh' }} justify="space-around" align="middle">
+			<Col {...span}>
+				<Space direction="vertical" size="large" style={{ width: '100%' }}>
+					<header>
+						<Title level={1} style={{ marginBottom: '8px' }}>
+							Sign In!
+						</Title>
+						<Title level={4} style={{ marginTop: '8px' }}>
+							Please enter your credentials below
+						</Title>
+					</header>
+					<Form {...layout} name="signup-form" labelAlign="left" onFinish={submitForm}>
+						<Form.Item name="email" label="Email">
+							<Input />
+						</Form.Item>
+						<Form.Item name="password" label="Password">
+							<Password />
+						</Form.Item>
+						<Form.Item name="remember" valuePropName="checked">
+							<Checkbox>Remember Me</Checkbox>
+						</Form.Item>
+						<Form.Item {...tailLayout}>
+							<Button type="primary" size="large" htmlType="submit" block>
+								Sign In
+							</Button>
+						</Form.Item>
+					</Form>
+					<Link to="/sign-up">New User? Sign up here!</Link>
+				</Space>
+			</Col>
+		</Row>
+	);
+};
+
+export default SignInForm;
