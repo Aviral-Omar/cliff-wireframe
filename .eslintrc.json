@@ -13,6 +13,7 @@
 	},
 	"plugins": ["react"],
 	"rules": {
+		"no-unused-vars": "warn",
 		"react/jsx-props-no-spreading": "off",
 		"react/prop-types": "off",
 		"no-console": "warn"
