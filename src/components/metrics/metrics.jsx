@@ -4,14 +4,11 @@ import { Layout, Typography } from 'antd';
 const { Title } = Typography;
 const { Content } = Layout;
 
-const Metrics = () => (
-	<Content style={{ padding: '48px 40px' }}>
-		<header>
-			<Title level={1} style={{ marginBottom: '8px' }}>
-				Metrics
-			</Title>
-		</header>
-	</Content>
-);
+const Metrics = props => {
+	const { setTitle } = props;
+	setTitle('Metrics');
+
+	return <Content style={{ marginTop: '80px', padding: '0px 40px' }} />;
+};
 
 export default Metrics;

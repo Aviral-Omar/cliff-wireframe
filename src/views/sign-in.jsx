@@ -21,7 +21,7 @@ const SignInForm = props => {
 		try {
 			const response = await axios.post('http://localhost:8080/sign-in', values);
 			if (response.status === 200) {
-				const token = response.text();
+				const token = response.data;
 				props.setToken(token);
 			} else if (response.status >= 400) {
 				throw Error(response.statusText);
