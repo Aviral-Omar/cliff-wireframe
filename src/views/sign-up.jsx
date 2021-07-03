@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Typography, Space, Input, Row, Col, Checkbox, Button, Form } from 'antd';
 import { Link, Redirect } from 'react-router-dom';
+import axios from 'axios';
 
 const { Title } = Typography;
 const { Password } = Input;
@@ -20,13 +21,7 @@ const SignUpForm = () => {
 
 	const submitForm = async values => {
 		try {
-			const response = await fetch('http://localhost:8080/sign-up', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json',
-				},
-				body: JSON.stringify(values),
-			});
+			const response = await axios.post('http://localhost:8080/sign-up', values);
 			if (response.status === 201) {
 				setRedirect('/sign-in');
 			} else if (response.status >= 400) {

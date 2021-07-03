@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Layout } from 'antd';
 import { Switch, Route, useRouteMatch } from 'react-router-dom';
 
+import axios from 'axios';
 import Home from '../components/home/home';
 import Metrics from '../components/metrics/metrics';
 import Streams from '../components/streams/streams';
@@ -15,14 +16,9 @@ const Main = props => {
 
 	useEffect(() => {
 		const getName = async () => {
-			const response = await fetch('http://localhost:8080/user-name', {
-				method: 'GET',
-				headers: {
-					Authorization: props.authToken,
-				},
-			});
+			const response = await axios.get('http://localhost:8080/user-name');
 			if (response.status === 200) {
-				return setName(await response.text());
+				return setName(response.text());
 			}
 			return signOut();
 		};
