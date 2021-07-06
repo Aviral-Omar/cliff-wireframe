@@ -1,8 +1,11 @@
-import React, { useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import axios from 'axios';
+import { Table } from 'antd';
 
 const StreamTable = props => {
+	const [streamData, setStreamData] = useState({});
+
 	const query = new URLSearchParams(useLocation().search);
 
 	const { authToken, removeToken } = props;
@@ -20,13 +23,62 @@ const StreamTable = props => {
 				},
 			);
 			if (response.status === 200) {
-				return response;
+				return setStreamData(response.data);
 			}
 			return signOut();
 		};
-		console.log(getTableData());
+		getTableData();
 	}, []);
-	return <div />;
+
+	const columns = [
+		{
+			title: 'Date (UTC)',
+			dataIndex: 'timestamp',
+			key: 'timestamp',
+			fixed: 'left',
+			width: 140,
+		},
+		{
+			title: 'Country',
+			dataIndex: 'country',
+			key: 'country',
+		},
+		{
+			title: 'Purchase Count',
+			dataIndex: 'purchase_count',
+			key: 'purchase_count',
+		},
+		{
+			title: 'Checkout Failure Count',
+			dataIndex: 'checkout_failure_count',
+			key: 'checkout_failure_count',
+		},
+		{
+			title: 'Payment API Failure Count',
+			dataIndex: 'payment_api_failure_count',
+			key: 'payment_api_failure_count',
+		},
+	];
+
+	return (
+		<Table
+			columns={columns}
+			dataSource={streamData.rows?.map(row => ({
+				...row,
+				timestamp: new Date(row.timestamp).toUTCString(),
+			}))}
+			pagination={{
+				position: ['bottomCenter'],
+				defaultPageSize: 50,
+				hideOnSinglePage: true,
+			}}
+			scroll={{
+				scrollToFirstRowOnChange: true,
+				x: 'max-content',
+				y: '60vh',
+			}}
+		/>
+	);
 };
 
 export default StreamTable;

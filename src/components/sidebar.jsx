@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Layout, Menu, Avatar, Row, Col, Typography, Button } from 'antd';
 import { HomeOutlined, UnorderedListOutlined, AreaChartOutlined } from '@ant-design/icons';
 import { Link } from 'react-router-dom';
@@ -6,8 +6,7 @@ import { Link } from 'react-router-dom';
 const { Sider } = Layout;
 
 const Sidebar = props => {
-	const [collapsed, setCollapsed] = useState(true);
-	const { name } = props;
+	const { name, collapsed, setCollapsed } = props;
 
 	const signOut = () => props.removeToken();
 
@@ -18,24 +17,31 @@ const Sidebar = props => {
 			collapsible
 			defaultCollapsed={collapsed}
 			onCollapse={() => setCollapsed(!collapsed)}
-			style={{ backgroundColor: 'white' }}
+			theme="dark"
+			style={{
+				overflow: 'auto',
+				height: '100vh',
+				position: 'fixed',
+				left: 0,
+				zIndex: 2,
+			}}
 		>
 			<Row justify="space-around" align="middle" style={{ margin: '16px 0px' }}>
-				<Avatar shape="square" size={64}>
+				<Avatar shape="square" size={56}>
 					USER
 				</Avatar>
 				{collapsed ? null : (
 					<Col>
-						<Typography.Title level={4} style={{ marginBottom: '0px' }}>
+						<Typography.Title level={4} style={{ marginBottom: '0px', color: 'white' }}>
 							{name}
 						</Typography.Title>
-						<Button type="text" onClick={signOut}>
+						<Button type="text" onClick={signOut} style={{ color: 'white' }}>
 							Sign Out
 						</Button>
 					</Col>
 				)}
 			</Row>
-			<Menu>
+			<Menu theme="dark">
 				<Menu.Item key={1} icon={<HomeOutlined />}>
 					<Link to="/home">Home</Link>
 				</Menu.Item>
