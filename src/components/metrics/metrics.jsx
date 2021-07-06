@@ -1,12 +1,12 @@
-import React from 'react';
-import { Layout, Typography } from 'antd';
+import React, { useEffect } from 'react';
+import { Layout } from 'antd';
 
-const { Title } = Typography;
 const { Content } = Layout;
 
 const Metrics = props => {
 	const { setTitle } = props;
-	setTitle('Metrics');
+
+	useEffect(() => setTitle('Metrics'));
 
 	return <Content style={{ marginTop: '80px', padding: '0px 40px' }} />;
 };

@@ -37,7 +37,7 @@ const Main = props => {
 			<Layout>
 				<Titlebar title={title} />
 				<Switch>
-					<Route exact path={[`${path}`, `${path}home`]}>
+					<Route exact path={[path, `${path}home`]}>
 						<Home name={name} setTitle={setTitle} />
 					</Route>
 					<Route path={`${path}metrics`}>

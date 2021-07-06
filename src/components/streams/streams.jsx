@@ -1,14 +1,18 @@
 import React, { useState, useEffect } from 'react';
-import { Layout, Typography, Card, Avatar } from 'antd';
+import { Link, useLocation, useRouteMatch } from 'react-router-dom';
+import { Layout, Card, Avatar, Divider } from 'antd';
 import axios from 'axios';
 
-const { Title } = Typography;
+import StreamTable from './stream-table';
+
 const { Content } = Layout;
+const { Meta } = Card;
 
 const Streams = props => {
 	const [streams, setStreams] = useState([]);
 	const { removeToken, setTitle } = props;
-	setTitle('Streams');
+	const { path } = useRouteMatch();
+	const location = useLocation();
 
 	const signOut = () => removeToken();
 	useEffect(() => {
@@ -24,17 +28,38 @@ const Streams = props => {
 			return signOut();
 		};
 		getStreams();
+		setTitle('Streams');
 	}, []);
 
 	return (
 		<Content style={{ marginTop: '80px', padding: '0px 40px' }}>
-			<Card>
-				<Card.Meta
-					avatar={<Avatar src={streams[0]?.source.logoUrl} shape="circle" size="large" />}
-					title={streams[0]?.source.name}
-					description={streams[0]?.source.description}
-				/>
-			</Card>
+			{location.search ? (
+				<StreamTable {...props} location={location} />
+			) : (
+				streams?.map(stream => (
+					<Link to={`${path}?id=${stream.source._id}`} key={stream._id}>
+						<Card style={{ borderRadius: '8px', margin: '8px 0px' }}>
+							<p>Created By: {stream.user.name}</p>
+							<p>
+								Monitored / Stored Datapoints:{' '}
+								{`${stream.total_points_predicted} / ${stream.total_points_stored}`}
+							</p>
+							<Divider />
+							<Meta
+								avatar={
+									<Avatar
+										src={stream.source.logoUrl}
+										shape="circle"
+										size="large"
+									/>
+								}
+								title={stream.name}
+								description={stream.source.description}
+							/>
+						</Card>
+					</Link>
+				))
+			)}
 		</Content>
 	);
 };
