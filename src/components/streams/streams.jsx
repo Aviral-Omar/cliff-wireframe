@@ -31,7 +31,7 @@ const Streams = props => {
 	const component = location.search ? (
 		<StreamTable {...props} location={location} />
 	) : (
-		streams?.map(stream => <StreamCard path={path} stream={stream} />)
+		streams?.map(stream => <StreamCard path={path} stream={stream} key={stream._id} />)
 	);
 	return <div>{component}</div>;
 };

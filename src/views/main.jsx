@@ -51,7 +51,7 @@ const Main = props => {
 							<Home name={name} setTitle={setTitle} />
 						</Route>
 						<Route path={`${path}metrics`}>
-							<Metrics setTitle={setTitle} />
+							<Metrics {...props} setTitle={setTitle} />
 						</Route>
 						<Route path={`${path}streams`}>
 							<Streams {...props} setTitle={setTitle} />
