@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
+import Chart from './metrics-chart';
+
 const Metrics = props => {
 	const [metrics, setMetrics] = useState([]);
 	const [tsData, setData] = useState([]);
@@ -40,7 +42,9 @@ const Metrics = props => {
 		setTitle('Metrics');
 	}, []);
 
-	return <div />;
+	return metrics?.map((metric, index) => (
+		<Chart metric={metric} tsData={tsData[index]} key={metric._id} />
+	));
 };
 
 export default Metrics;

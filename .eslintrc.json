@@ -17,6 +17,6 @@
 		"react/jsx-props-no-spreading": "off",
 		"react/prop-types": "off",
 		"no-console": "warn",
-		"no-underscore-dangle": ["warn", { "allow": ["_id"] }]
+		"no-underscore-dangle": ["warn", { "allow": ["_id", "_source"] }]
 	}
 }

@@ -24,7 +24,9 @@ const Streams = props => {
 			}
 			return signOut();
 		};
-		getStreams();
+		if (!location.search) {
+			getStreams();
+		}
 		setTitle('Streams');
 	}, []);
 
