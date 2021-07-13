@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { Row, Col } from 'antd';
 
 import Chart from './metrics-chart';
 
@@ -42,9 +43,15 @@ const Metrics = props => {
 		setTitle('Metrics');
 	}, []);
 
-	return metrics?.map((metric, index) => (
-		<Chart metric={metric} tsData={tsData[index]} key={metric._id} />
-	));
+	return (
+		<Row>
+			<Col span={24} xxl={15} xl={16} lg={16}>
+				{metrics?.map((metric, index) => (
+					<Chart metric={metric} tsData={tsData[index]} key={metric._id} />
+				))}
+			</Col>
+		</Row>
+	);
 };
 
 export default Metrics;
