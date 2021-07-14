@@ -23,11 +23,13 @@ const SignInForm = props => {
 			if (response.status === 200) {
 				const token = response.data;
 				props.setToken(token);
-			} else if (response.status >= 400) {
-				throw Error(response.statusText);
+			} else if (response.status === 404) {
+				console.log('Wrong credentials!');
+			} else if (response.status === 502) {
+				throw Error('Bad Gateway');
 			}
-		} catch (err) {
-			console.log(err);
+		} catch (e) {
+			console.log(e);
 		}
 	};
 

@@ -14,15 +14,22 @@ const Streams = props => {
 	const signOut = () => removeToken();
 	useEffect(() => {
 		const getStreams = async () => {
-			const response = await axios.get('http://localhost:8080/streams', {
-				headers: {
-					Authorization: props.authToken,
-				},
-			});
-			if (response.status === 200) {
-				return setStreams(response.data);
+			try {
+				const response = await axios.get('http://localhost:8080/streams', {
+					headers: {
+						Authorization: props.authToken,
+					},
+				});
+				if (response.status === 200) {
+					setStreams(response.data);
+				} else if (response.status === 401) {
+					signOut();
+				} else if (response.status === 502) {
+					throw Error('Bad Gateway');
+				}
+			} catch (e) {
+				console.log(e);
 			}
-			return signOut();
 		};
 		if (!location.search) {
 			getStreams();

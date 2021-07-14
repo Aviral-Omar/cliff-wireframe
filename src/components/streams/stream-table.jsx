@@ -14,18 +14,25 @@ const StreamTable = props => {
 
 	useEffect(() => {
 		const getTableData = async () => {
-			const response = await axios.get(
-				`http://localhost:8080/streams?id=${query.get('id')}`,
-				{
-					headers: {
-						Authorization: authToken,
+			try {
+				const response = await axios.get(
+					`http://localhost:8080/streams?id=${query.get('id')}`,
+					{
+						headers: {
+							Authorization: authToken,
+						},
 					},
-				},
-			);
-			if (response.status === 200) {
-				return setStreamData(response.data);
+				);
+				if (response.status === 200) {
+					setStreamData(response.data);
+				} else if (response.status === 401) {
+					signOut();
+				} else if (response.status === 502) {
+					throw Error('Bad Gateway');
+				}
+			} catch (e) {
+				console.log(e);
 			}
-			return signOut();
 		};
 		getTableData();
 	}, []);

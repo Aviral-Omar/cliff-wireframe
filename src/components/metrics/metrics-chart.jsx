@@ -130,7 +130,7 @@ const Chart = props => {
 						{
 							name: 'Anomaly',
 							type: 'line',
-							data: rows?.map((row, index) => [
+							data: rows?.map(row => [
 								row.timestamp,
 								row.original_value &&
 								(row.line_status === 1 ||

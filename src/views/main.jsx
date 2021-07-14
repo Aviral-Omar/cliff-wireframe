@@ -21,15 +21,22 @@ const Main = props => {
 
 	useEffect(() => {
 		const getName = async () => {
-			const response = await axios.get('http://localhost:8080/user-name', {
-				headers: {
-					Authorization: props.authToken,
-				},
-			});
-			if (response.status === 200) {
-				return setName(response.data);
+			try {
+				const response = await axios.get('http://localhost:8080/user-name', {
+					headers: {
+						Authorization: props.authToken,
+					},
+				});
+				if (response.status === 200) {
+					setName(response.data);
+				} else if (response.status === 401) {
+					signOut();
+				} else if (response.status === 502) {
+					throw Error('Bad Gateway');
+				}
+			} catch (e) {
+				console.log(e);
 			}
-			return signOut();
 		};
 		getName();
 	}, []);
