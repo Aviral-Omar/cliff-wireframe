@@ -104,7 +104,7 @@ const Metrics = props => {
 				))}
 				<Row justify="center">
 					<Pagination
-						style={{ padding: '48px 0px' }}
+						style={{ padding: '8px 0px 48px 0px' }}
 						pageSize={pageSize}
 						pageSizeOptions={['6', '10', '20']}
 						total={metricsCount}

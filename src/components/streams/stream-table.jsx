@@ -71,7 +71,6 @@ const StreamTable = props => {
 			dataSource={streamData.rows?.map(row => ({
 				...row,
 				timestamp: DateTime.fromISO(row.timestamp).toLocaleString(DateTime.DATETIME_MED),
-				// new Date(row.timestamp).toUTCString(),
 			}))}
 			pagination={{
 				position: ['bottomCenter'],
