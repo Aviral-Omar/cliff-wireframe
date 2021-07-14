@@ -9,8 +9,7 @@ const Metrics = props => {
 	const [tsData, setData] = useState([]);
 	const [page, setPage] = useState(1);
 	const [metricsCount, setCount] = useState(0);
-
-	const PAGE_SIZE = 6;
+	const [pageSize, setSize] = useState(6);
 
 	const { setTitle } = props;
 
@@ -47,7 +46,7 @@ const Metrics = props => {
 		const getMetrics = async () => {
 			try {
 				const response = await axios.get(
-					`http://localhost:8080/metrics?page=${page}&page_size=${PAGE_SIZE}`,
+					`http://localhost:8080/metrics?page=${page}&page_size=${pageSize}`,
 					{
 						headers: {
 							Authorization: props.authToken,
@@ -66,7 +65,7 @@ const Metrics = props => {
 			}
 		};
 		getMetrics();
-	}, [page]);
+	}, [page, pageSize]);
 
 	useEffect(() => {
 		const getCount = async () => {
@@ -91,8 +90,9 @@ const Metrics = props => {
 		getCount();
 	}, []);
 
-	const pageChangeHandler = pageNumber => {
-		setPage(pageNumber);
+	const pageChangeHandler = (pageNumber, size) => {
+		setPage(pageNumber || 1);
+		setSize(size);
 	};
 
 	return (
@@ -104,9 +104,11 @@ const Metrics = props => {
 				<Row justify="center">
 					<Pagination
 						style={{ padding: '48px 0px' }}
-						pageSize={PAGE_SIZE}
+						pageSize={pageSize}
+						pageSizeOptions={['6', '10', '20']}
 						total={metricsCount}
 						onChange={pageChangeHandler}
+						showSizeChanger
 					/>
 				</Row>
 			</Col>
