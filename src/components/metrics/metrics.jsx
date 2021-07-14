@@ -43,6 +43,7 @@ const Metrics = props => {
 	}, [metrics]);
 
 	useEffect(() => {
+		setMetrics([]);
 		const getMetrics = async () => {
 			try {
 				const response = await axios.get(

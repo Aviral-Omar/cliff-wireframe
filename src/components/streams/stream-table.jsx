@@ -2,9 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { Table } from 'antd';
+import { DateTime } from 'luxon';
 
 const StreamTable = props => {
 	const [streamData, setStreamData] = useState({});
+	const [columns, setColumns] = useState([]);
 
 	const query = new URLSearchParams(useLocation().search);
 
@@ -37,42 +39,39 @@ const StreamTable = props => {
 		getTableData();
 	}, []);
 
-	const columns = [
-		{
-			title: 'Date (UTC)',
-			dataIndex: 'timestamp',
-			key: 'timestamp',
-			fixed: 'left',
-			width: 140,
-		},
-		{
-			title: 'Country',
-			dataIndex: 'country',
-			key: 'country',
-		},
-		{
-			title: 'Purchase Count',
-			dataIndex: 'purchase_count',
-			key: 'purchase_count',
-		},
-		{
-			title: 'Checkout Failure Count',
-			dataIndex: 'checkout_failure_count',
-			key: 'checkout_failure_count',
-		},
-		{
-			title: 'Payment API Failure Count',
-			dataIndex: 'payment_api_failure_count',
-			key: 'payment_api_failure_count',
-		},
-	];
+	useEffect(() => {
+		if (Object.keys(streamData).length !== 0) {
+			setColumns([
+				{
+					title: 'Date (UTC)',
+					dataIndex: 'timestamp',
+					key: 'timestamp',
+					fixed: 'left',
+					width: 168,
+				},
+				...streamData?.fields?.flatMap(field =>
+					field.name !== 'timestamp'
+						? [
+								{
+									title: field.name,
+									dataIndex: field.name,
+									key: field.columnID,
+									ellipsis: true,
+								},
+						  ]
+						: [],
+				),
+			]);
+		}
+	}, [streamData]);
 
 	return (
 		<Table
 			columns={columns}
 			dataSource={streamData.rows?.map(row => ({
 				...row,
-				timestamp: new Date(row.timestamp).toUTCString(),
+				timestamp: DateTime.fromISO(row.timestamp).toLocaleString(DateTime.DATETIME_MED),
+				// new Date(row.timestamp).toUTCString(),
 			}))}
 			pagination={{
 				position: ['bottomCenter'],
@@ -82,7 +81,7 @@ const StreamTable = props => {
 			scroll={{
 				scrollToFirstRowOnChange: true,
 				x: 'max-content',
-				y: '60vh',
+				y: '64vh',
 			}}
 		/>
 	);
