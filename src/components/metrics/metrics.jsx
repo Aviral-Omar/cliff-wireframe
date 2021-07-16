@@ -1,8 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Row, Col, Pagination } from 'antd';
+import { Row, Pagination, Layout } from 'antd';
 
 import Chart from './metrics-chart';
+import Explorer from './metrics-explorer';
+
+const { Content, Sider } = Layout;
 
 const Metrics = props => {
 	const [metrics, setMetrics] = useState([]);
@@ -11,7 +14,7 @@ const Metrics = props => {
 	const [metricsCount, setCount] = useState(0);
 	const [pageSize, setSize] = useState(6);
 
-	const { setTitle } = props;
+	const { setTitle, collapsed } = props;
 
 	const signOut = () => props.removeToken();
 
@@ -92,28 +95,37 @@ const Metrics = props => {
 	}, []);
 
 	const pageChangeHandler = (pageNumber, size) => {
-		setPage(pageNumber || 1);
+		setPage(pageNumber);
 		setSize(size);
 	};
 
 	return (
-		<Row justify="center">
-			<Col span={24} xxl={15} xl={16} lg={16} flex="">
+		<Layout style={{ marginLeft: `${collapsed ? 80 : 200}px` }}>
+			<Content
+				style={{
+					marginTop: '64px',
+					padding: '0px 40px',
+					overflow: 'auto',
+					height: 'calc(100vh - 64px)',
+				}}
+			>
 				{metrics.map((metric, index) => (
 					<Chart metric={metric} tsData={tsData[index]} key={metric._id} />
 				))}
 				<Row justify="center">
 					<Pagination
-						style={{ padding: '8px 0px 48px 0px' }}
+						style={{ paddingBottom: '48px' }}
 						pageSize={pageSize}
 						pageSizeOptions={['6', '10', '20']}
 						total={metricsCount}
+						current={page}
 						onChange={pageChangeHandler}
 						showSizeChanger
 					/>
 				</Row>
-			</Col>
-		</Row>
+			</Content>
+			<Explorer {...props} streamId={metrics?.[0]?._source.stream_id} />
+		</Layout>
 	);
 };
 

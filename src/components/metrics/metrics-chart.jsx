@@ -12,7 +12,7 @@ const Chart = props => {
 	return (
 		<Card
 			title={metric._source.measure}
-			style={{ borderRadius: '8px', margin: '8px 0px' }}
+			style={{ borderRadius: '8px', margin: '16px 0px' }}
 			bodyStyle={{ padding: '0px' }}
 			actions={metric._source.dimensions.map(dimension => (
 				<Text strong>

@@ -46,25 +46,34 @@ const Main = props => {
 			<Sidebar {...props} name={name} collapsed={collapsed} setCollapsed={setCollapsed} />
 			<Layout>
 				<Titlebar title={title} style={{ marginLeft: `${collapsed ? 80 : 200}px` }} />
-				<Content
-					style={{
-						marginTop: '80px',
-						marginLeft: `${collapsed ? 80 : 200}px`,
-						padding: '0px 40px',
-					}}
-				>
-					<Switch>
-						<Route exact path={[path, `${path}home`]}>
+
+				<Switch>
+					<Route exact path={[path, `${path}home`]}>
+						<Content
+							style={{
+								marginTop: '80px',
+								marginLeft: `${collapsed ? 80 : 200}px`,
+								padding: '0px 40px',
+							}}
+						>
 							<Home name={name} setTitle={setTitle} />
-						</Route>
-						<Route path={`${path}metrics`}>
-							<Metrics {...props} setTitle={setTitle} />
-						</Route>
-						<Route path={`${path}streams`}>
+						</Content>
+					</Route>
+					<Route path={`${path}metrics`}>
+						<Metrics {...props} setTitle={setTitle} collapsed={collapsed} />
+					</Route>
+					<Route path={`${path}streams`}>
+						<Content
+							style={{
+								marginTop: '80px',
+								marginLeft: `${collapsed ? 80 : 200}px`,
+								padding: '0px 40px',
+							}}
+						>
 							<Streams {...props} setTitle={setTitle} />
-						</Route>
-					</Switch>
-				</Content>
+						</Content>
+					</Route>
+				</Switch>
 			</Layout>
 		</Layout>
 	);
