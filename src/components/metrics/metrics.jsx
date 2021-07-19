@@ -8,7 +8,11 @@ import Explorer from './metrics-explorer';
 const { Content, Sider } = Layout;
 
 const Metrics = props => {
+	const [streamId, setId] = useState('');
+	const [stream, setStream] = useState({});
 	const [metrics, setMetrics] = useState([]);
+	const [selectedFilters, setSelected] = useState({});
+	const [filters, setFilters] = useState({});
 	const [tsData, setData] = useState([]);
 	const [page, setPage] = useState(1);
 	const [metricsCount, setCount] = useState(0);
@@ -17,6 +21,43 @@ const Metrics = props => {
 	const { setTitle, collapsed } = props;
 
 	const signOut = () => props.removeToken();
+
+	useEffect(() => {
+		if (Object.keys(stream).length !== 0) {
+			const f = {};
+			stream.meta.dimensions.forEach(dimension => {
+				f[dimension] = [];
+			});
+			setSelected(f);
+		}
+	}, [stream]);
+
+	useEffect(() => {
+		const getStream = async () => {
+			if (streamId) {
+				try {
+					const response = await axios.post(
+						'http://localhost:8080/streams',
+						{ id: streamId },
+						{
+							headers: {
+								Authorization: props.authToken,
+							},
+						},
+					);
+					setStream(response.data);
+				} catch (e) {
+					if (e.response.status === 401) {
+						signOut();
+						console.log('Unauthenticated');
+					} else {
+						console.log('Bad Gateway');
+					}
+				}
+			}
+		};
+		getStream();
+	}, [streamId]);
 
 	useEffect(() => {
 		const getTSData = async () => {
@@ -30,15 +71,14 @@ const Metrics = props => {
 							Authorization: props.authToken,
 						},
 					});
-					if (response.status === 200) {
-						setData(response.data);
-					} else if (response.status === 401) {
-						signOut();
-					} else if (response.status === 502) {
-						throw Error('Bad Gateway');
-					}
+					setData(response.data);
 				} catch (e) {
-					console.log(e);
+					if (e.response.status === 401) {
+						signOut();
+						console.log('Unauthenticated');
+					} else {
+						console.log('Bad Gateway');
+					}
 				}
 			}
 		};
@@ -49,50 +89,51 @@ const Metrics = props => {
 		setMetrics([]);
 		const getMetrics = async () => {
 			try {
-				const response = await axios.get(
+				const response = await axios.post(
 					`http://localhost:8080/metrics?page=${page}&page_size=${pageSize}`,
+					filters,
 					{
 						headers: {
 							Authorization: props.authToken,
 						},
 					},
 				);
-				if (response.status === 200) {
-					setMetrics(response.data);
-				} else if (response.status === 401) {
-					signOut();
-				} else if (response.status === 502) {
-					throw Error('Bad Gateway');
-				}
+				setId(response.data?.[0]?._source.stream_id);
+				setMetrics(response.data);
 			} catch (e) {
-				console.log(e);
+				if (e.response.status === 401) {
+					signOut();
+					console.log('Unauthenticated');
+				} else {
+					console.log('Bad Gateway');
+				}
 			}
 		};
 		getMetrics();
-	}, [page, pageSize]);
+	}, [page, pageSize, filters]);
 
 	useEffect(() => {
 		const getCount = async () => {
 			try {
-				const response = await axios.get('http://localhost:8080/metrics/count', {
+				const response = await axios.post('http://localhost:8080/metrics/count', filters, {
 					headers: {
 						Authorization: props.authToken,
 					},
 				});
-				if (response.status === 200) {
-					setCount(response.data);
-				} else if (response.status === 401) {
-					signOut();
-				} else if (response.status === 502) {
-					throw Error('Bad Gateway');
-				}
+				setCount(response.data);
+				setPage(1);
 			} catch (e) {
-				console.log(e);
+				if (e.response.status === 401) {
+					signOut();
+					console.log('Unauthenticated');
+				} else {
+					console.log('Bad Gateway');
+				}
 			}
 		};
 		setTitle('Metrics');
 		getCount();
-	}, []);
+	}, [filters]);
 
 	const pageChangeHandler = (pageNumber, size) => {
 		setPage(pageNumber);
@@ -100,7 +141,7 @@ const Metrics = props => {
 	};
 
 	return (
-		<Layout style={{ marginLeft: `${collapsed ? 80 : 200}px` }}>
+		<Layout style={{ marginLeft: `${collapsed ? 80 : 200}px`, height: 'calc(100vh - 64px)' }}>
 			<Content
 				style={{
 					marginTop: '64px',
@@ -124,7 +165,14 @@ const Metrics = props => {
 					/>
 				</Row>
 			</Content>
-			<Explorer {...props} streamId={metrics?.[0]?._source.stream_id} />
+			<Explorer
+				{...props}
+				stream={stream}
+				filters={filters}
+				setFilters={setFilters}
+				selectedFilters={selectedFilters}
+				setSelected={setSelected}
+			/>
 		</Layout>
 	);
 };

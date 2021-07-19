@@ -1,12 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
-import { Layout, Input, Collapse, Checkbox, Typography } from 'antd';
+import { Layout, Input, Collapse, Checkbox, Typography, Button } from 'antd';
+import { FilterOutlined } from '@ant-design/icons';
 import styled from 'styled-components';
 
 const { Sider } = Layout;
 const { Panel } = Collapse;
 const { Search } = Input;
-const { Title, Text } = Typography;
+const { Title } = Typography;
 
 const StyledCheckboxGroup = styled(Checkbox.Group)`
 	.ant-checkbox-wrapper {
@@ -18,53 +19,22 @@ const StyledCheckboxGroup = styled(Checkbox.Group)`
 	}
 `;
 
+const arrayToString = arr => {
+	let str = '';
+	arr.forEach((el, index) => {
+		str += index !== 0 ? ' OR' : '';
+		str += ` ${el}`;
+	});
+	return str;
+};
+
 const Explorer = props => {
 	const [explorerCollapsed, setCollapsed] = useState(window.innerWidth >= 1200);
-	const [stream, setStream] = useState({});
-	const [filter, setFilter] = useState({});
 	const [recommendations, setRecommendations] = useState({});
 
 	const signOut = () => props.removeToken();
 
-	const { streamId } = props;
-
-	useEffect(() => {
-		if (Object.keys(stream).length !== 0) {
-			const f = {};
-			stream.meta.dimensions.forEach(dimension => {
-				f[dimension] = [];
-			});
-			setFilter(f);
-		}
-	}, [stream]);
-
-	useEffect(() => {
-		const getStream = async () => {
-			if (streamId) {
-				try {
-					const response = await axios.post(
-						'http://localhost:8080/streams',
-						{ id: streamId },
-						{
-							headers: {
-								Authorization: props.authToken,
-							},
-						},
-					);
-					if (response.status === 200) {
-						setStream(response.data);
-					} else if (response.status === 401) {
-						signOut();
-					} else if (response.status === 502) {
-						throw Error('Bad Gateway');
-					}
-				} catch (e) {
-					console.log(e);
-				}
-			}
-		};
-		getStream();
-	}, [streamId]);
+	const { stream, filters, setFilters, selectedFilters, setSelected } = props;
 
 	return (
 		<Sider
@@ -81,20 +51,44 @@ const Explorer = props => {
 				marginTop: '64px',
 			}}
 		>
-			<Title level={3} style={{ color: 'white', margin: '16px 24px' }}>
+			<Title level={2} style={{ color: 'white', margin: '16px 24px' }}>
 				Applied Filters
 			</Title>
-			<Title level={3} style={{ color: 'white', margin: '16px 24px' }}>
+			{Object.entries(filters).flatMap(entry =>
+				entry[1].length !== 0
+					? [
+							<Title
+								level={5}
+								style={{ color: 'white', margin: '8px 24px' }}
+								key={arrayToString(entry[1])}
+							>{`${entry[0]} =${arrayToString(entry[1])}`}</Title>,
+					  ]
+					: [],
+			)}
+			<Title level={2} style={{ color: 'white', margin: '16px 24px' }}>
 				Selected Filters
 			</Title>
-			<Text style={{ color: 'white', margin: '16px 24px' }}>
-				{Object.entries(filter).map(entry => `${entry[0]} = ${entry[1]}\n`)}
-			</Text>
+			{Object.entries(selectedFilters).flatMap(entry =>
+				entry[1].length !== 0
+					? [
+							<Title
+								level={5}
+								style={{ color: 'white', margin: '8px 24px' }}
+								key={arrayToString(entry[1])}
+							>{`${entry[0]} =${arrayToString(entry[1])}`}</Title>,
+					  ]
+					: [],
+			)}
+
 			<Collapse
 				accordion
 				expandIconPosition="right"
 				bordered={false}
-				style={{ margin: '16px 24px', backgroundColor: '#001529', borderRadius: '8px' }}
+				style={{
+					margin: '16px 24px 8px 24px',
+					backgroundColor: '#001529',
+					borderRadius: '8px',
+				}}
 			>
 				{stream.meta?.dimensions.map(dimension => {
 					const autoComplete = async el => {
@@ -105,7 +99,7 @@ const Explorer = props => {
 									name: dimension,
 									text: el?.target.value ?? '',
 									limit: 5,
-									id: streamId,
+									id: stream.source._id,
 								},
 								{
 									headers: {
@@ -113,19 +107,17 @@ const Explorer = props => {
 									},
 								},
 							);
-							if (response.status === 200) {
-								setRecommendations({
-									...recommendations,
-									[dimension]: response.data,
-								});
-							}
-							if (response.status === 401) {
-								signOut();
-							} else if (response.status === 502) {
-								throw Error('Bad Gateway');
-							}
+							setRecommendations({
+								...recommendations,
+								[dimension]: response.data,
+							});
 						} catch (e) {
-							console.log(e);
+							if (e.response.status === 401) {
+								signOut();
+								console.log('Unauthenticated');
+							} else {
+								console.log('Bad Gateway');
+							}
 						}
 					};
 
@@ -137,7 +129,7 @@ const Explorer = props => {
 								borderRadius: '8px',
 								overflow: 'hidden',
 								backgroundColor: 'white',
-								marginBottom: '16px',
+								marginBottom: '8px',
 							}}
 						>
 							<Search allowClear onChange={autoComplete} onFocus={autoComplete} />
@@ -146,19 +138,23 @@ const Explorer = props => {
 								onChange={checkedValues => {
 									const newFilterValues = [
 										...new Set(
-											filter[dimension].concat(checkedValues).filter(val => {
-												if (
-													!checkedValues.includes(val) &&
-													recommendations[dimension].includes(val)
-												) {
-													return false;
-												}
-												return true;
-											}),
+											selectedFilters[dimension]
+												.concat(checkedValues)
+												.filter(val => {
+													if (
+														!checkedValues.includes(val) &&
+														recommendations[dimension].includes(val)
+													) {
+														return false;
+													}
+													return true;
+												}),
 										),
 									];
-									setFilter({ ...filter, [dimension]: newFilterValues });
-									console.log(filter);
+									setSelected({
+										...selectedFilters,
+										[dimension]: newFilterValues,
+									});
 								}}
 								style={{ display: 'block' }}
 							/>
@@ -166,6 +162,14 @@ const Explorer = props => {
 					);
 				})}
 			</Collapse>
+			<Button
+				type="primary"
+				icon={<FilterOutlined />}
+				style={{ margin: '8px 24px', backgroundColor: '#001529', borderRadius: '8px' }}
+				onClick={() => setFilters(selectedFilters)}
+			>
+				Filter
+			</Button>
 		</Sider>
 	);
 };
