@@ -20,16 +20,14 @@ const SignInForm = props => {
 	const submitForm = async values => {
 		try {
 			const response = await axios.post('http://localhost:8080/sign-in', values);
-			if (response.status === 200) {
-				const token = response.data;
-				props.setToken(token);
-			} else if (response.status === 404) {
-				console.log('Wrong credentials!');
-			} else if (response.status === 502) {
-				throw Error('Bad Gateway');
-			}
+			const token = response.data;
+			props.setToken(token);
 		} catch (e) {
-			console.log(e);
+			if (e.response.status === 404) {
+				console.log('Wrong Credentials!');
+			} else {
+				console.log('Bad Gateway');
+			}
 		}
 	};
 

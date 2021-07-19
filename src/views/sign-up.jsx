@@ -22,15 +22,13 @@ const SignUpForm = () => {
 	const submitForm = async values => {
 		try {
 			const response = await axios.post('http://localhost:8080/sign-up', values);
-			if (response.status === 201) {
-				setRedirect('/sign-in');
-			} else if (response.status === 409) {
-				console.log('Already Exists');
-			} else if (response.status === 502) {
-				throw Error('Bad Gateway');
-			}
+			setRedirect('/sign-in');
 		} catch (e) {
-			console.log(e);
+			if (e.response.status === 409) {
+				console.log('Already Exists');
+			} else {
+				console.log('Bad Gateway');
+			}
 		}
 	};
 

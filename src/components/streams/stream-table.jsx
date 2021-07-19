@@ -25,15 +25,14 @@ const StreamTable = props => {
 						},
 					},
 				);
-				if (response.status === 200) {
-					setStreamData(response.data);
-				} else if (response.status === 401) {
-					signOut();
-				} else if (response.status === 502) {
-					throw Error('Bad Gateway');
-				}
+				setStreamData(response.data);
 			} catch (e) {
-				console.log(e);
+				if (e.response.status === 401) {
+					signOut();
+					console.log('Unauthenticated');
+				} else {
+					console.log('Bad Gateway');
+				}
 			}
 		};
 		getTableData();
@@ -81,7 +80,7 @@ const StreamTable = props => {
 			scroll={{
 				scrollToFirstRowOnChange: true,
 				x: 'max-content',
-				y: '64vh',
+				y: 'calc(100vh - 240px)',
 			}}
 		/>
 	);

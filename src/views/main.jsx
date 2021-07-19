@@ -27,15 +27,14 @@ const Main = props => {
 						Authorization: props.authToken,
 					},
 				});
-				if (response.status === 200) {
-					setName(response.data);
-				} else if (response.status === 401) {
-					signOut();
-				} else if (response.status === 502) {
-					throw Error('Bad Gateway');
-				}
+				setName(response.data);
 			} catch (e) {
-				console.log(e);
+				if (e.response.status === 401) {
+					signOut();
+					console.log('Unauthenticated');
+				} else {
+					console.log('Bad Gateway');
+				}
 			}
 		};
 		getName();
