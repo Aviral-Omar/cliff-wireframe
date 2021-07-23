@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import axios from 'axios';
 import { Layout, Input, Collapse, Checkbox, Typography, Button } from 'antd';
 import { FilterOutlined } from '@ant-design/icons';
@@ -34,7 +34,48 @@ const Explorer = props => {
 
 	const signOut = () => props.removeToken();
 
-	const { stream, filters, setFilters, selectedFilters, setSelected } = props;
+	const { streams, filters, setFilters, selectedFilters, setSelected } = props;
+
+	const dimensions = [];
+	streams?.forEach(stream => {
+		stream.meta.dimensions.forEach(dimension => {
+			dimensions.push({
+				id: stream._id,
+				stream: stream.name,
+				name: dimension,
+			});
+		});
+	});
+
+	const selected = [];
+	const applied = [];
+
+	Object.entries(selectedFilters).forEach(entry => {
+		Object.entries(entry[1]).forEach(dim => {
+			if (dim[1].length !== 0) {
+				selected.push(
+					<Title
+						level={5}
+						style={{ color: 'white', margin: '8px 24px' }}
+						key={arrayToString(dim[1])}
+					>{`${dim[0]} - ${entry[0]} =${arrayToString(dim[1])}`}</Title>,
+				);
+			}
+		});
+	});
+	Object.entries(filters).forEach(entry => {
+		Object.entries(entry[1]).forEach(dim => {
+			if (dim[1].length !== 0) {
+				applied.push(
+					<Title
+						level={5}
+						style={{ color: 'white', margin: '8px 24px' }}
+						key={arrayToString(dim[1])}
+					>{`${dim[0]} =${arrayToString(dim[1])}`}</Title>,
+				);
+			}
+		});
+	});
 
 	return (
 		<Sider
@@ -54,31 +95,11 @@ const Explorer = props => {
 			<Title level={2} style={{ color: 'white', margin: '16px 24px' }}>
 				Applied Filters
 			</Title>
-			{Object.entries(filters).flatMap(entry =>
-				entry[1].length !== 0
-					? [
-							<Title
-								level={5}
-								style={{ color: 'white', margin: '8px 24px' }}
-								key={arrayToString(entry[1])}
-							>{`${entry[0]} =${arrayToString(entry[1])}`}</Title>,
-					  ]
-					: [],
-			)}
+			{applied}
 			<Title level={2} style={{ color: 'white', margin: '16px 24px' }}>
 				Selected Filters
 			</Title>
-			{Object.entries(selectedFilters).flatMap(entry =>
-				entry[1].length !== 0
-					? [
-							<Title
-								level={5}
-								style={{ color: 'white', margin: '8px 24px' }}
-								key={arrayToString(entry[1])}
-							>{`${entry[0]} =${arrayToString(entry[1])}`}</Title>,
-					  ]
-					: [],
-			)}
+			{selected}
 
 			<Collapse
 				accordion
@@ -90,16 +111,16 @@ const Explorer = props => {
 					borderRadius: '8px',
 				}}
 			>
-				{stream.meta?.dimensions.map(dimension => {
+				{dimensions.map(dimension => {
 					const autoComplete = async el => {
 						try {
 							const response = await axios.post(
 								'http://localhost:8080/autocomplete',
 								{
-									name: dimension,
+									name: dimension.name,
 									text: el?.target.value ?? '',
 									limit: 5,
-									id: stream.source._id,
+									id: dimension.id,
 								},
 								{
 									headers: {
@@ -109,10 +130,13 @@ const Explorer = props => {
 							);
 							setRecommendations({
 								...recommendations,
-								[dimension]: response.data,
+								[dimension.id]: {
+									...recommendations[dimension.id],
+									[dimension.name]: response.data,
+								},
 							});
 						} catch (e) {
-							if (e.response.status === 401) {
+							if (e.response?.status === 401) {
 								signOut();
 								console.log('Unauthenticated');
 							} else {
@@ -123,8 +147,8 @@ const Explorer = props => {
 
 					return (
 						<Panel
-							header={dimension}
-							key={dimension}
+							header={`${dimension.name} - ${dimension.stream}`}
+							key={`${dimension.name}_${dimension.id}`}
 							style={{
 								borderRadius: '8px',
 								overflow: 'hidden',
@@ -134,16 +158,18 @@ const Explorer = props => {
 						>
 							<Search allowClear onChange={autoComplete} onFocus={autoComplete} />
 							<StyledCheckboxGroup
-								options={recommendations[dimension]}
+								options={recommendations[dimension.id]?.[dimension.name]}
 								onChange={checkedValues => {
 									const newFilterValues = [
 										...new Set(
-											selectedFilters[dimension]
+											selectedFilters[dimension.stream]?.[dimension.name]
 												.concat(checkedValues)
 												.filter(val => {
 													if (
 														!checkedValues.includes(val) &&
-														recommendations[dimension].includes(val)
+														recommendations[dimension.id]?.[
+															dimension.name
+														].includes(val)
 													) {
 														return false;
 													}
@@ -153,7 +179,10 @@ const Explorer = props => {
 									];
 									setSelected({
 										...selectedFilters,
-										[dimension]: newFilterValues,
+										[dimension.stream]: {
+											...selectedFilters[dimension.stream],
+											[dimension.name]: newFilterValues,
+										},
 									});
 								}}
 								style={{ display: 'block' }}

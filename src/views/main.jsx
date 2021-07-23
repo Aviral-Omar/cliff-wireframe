@@ -29,7 +29,7 @@ const Main = props => {
 				});
 				setName(response.data);
 			} catch (e) {
-				if (e.response.status === 401) {
+				if (e.response?.status === 401) {
 					signOut();
 					console.log('Unauthenticated');
 				} else {

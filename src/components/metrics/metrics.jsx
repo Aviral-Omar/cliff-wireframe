@@ -5,11 +5,10 @@ import { Row, Pagination, Layout } from 'antd';
 import Chart from './metrics-chart';
 import Explorer from './metrics-explorer';
 
-const { Content, Sider } = Layout;
+const { Content } = Layout;
 
 const Metrics = props => {
-	const [streamId, setId] = useState('');
-	const [stream, setStream] = useState({});
+	const [streams, setStreams] = useState([]);
 	const [metrics, setMetrics] = useState([]);
 	const [selectedFilters, setSelected] = useState({});
 	const [filters, setFilters] = useState({});
@@ -23,41 +22,38 @@ const Metrics = props => {
 	const signOut = () => props.removeToken();
 
 	useEffect(() => {
-		if (Object.keys(stream).length !== 0) {
+		if (streams) {
 			const f = {};
-			stream.meta.dimensions.forEach(dimension => {
-				f[dimension] = [];
+			streams?.forEach(stream => {
+				f[stream.name] = {};
+				stream.meta.dimensions.forEach(dimension => {
+					f[stream.name][dimension] = [];
+				});
 			});
 			setSelected(f);
 		}
-	}, [stream]);
+	}, [streams]);
 
 	useEffect(() => {
-		const getStream = async () => {
-			if (streamId) {
-				try {
-					const response = await axios.post(
-						'http://localhost:8080/streams',
-						{ id: streamId },
-						{
-							headers: {
-								Authorization: props.authToken,
-							},
-						},
-					);
-					setStream(response.data);
-				} catch (e) {
-					if (e.response.status === 401) {
-						signOut();
-						console.log('Unauthenticated');
-					} else {
-						console.log('Bad Gateway');
-					}
+		const getStreams = async () => {
+			try {
+				const response = await axios.get('http://localhost:8080/streams', {
+					headers: {
+						Authorization: props.authToken,
+					},
+				});
+				setStreams(response.data);
+			} catch (e) {
+				if (e.response?.status === 401) {
+					signOut();
+					console.log('Unauthenticated');
+				} else {
+					console.log('Bad Gateway');
 				}
 			}
 		};
-		getStream();
-	}, [streamId]);
+		getStreams();
+	}, []);
 
 	useEffect(() => {
 		const getTSData = async () => {
@@ -73,7 +69,7 @@ const Metrics = props => {
 					});
 					setData(response.data);
 				} catch (e) {
-					if (e.response.status === 401) {
+					if (e.response?.status === 401) {
 						signOut();
 						console.log('Unauthenticated');
 					} else {
@@ -98,10 +94,9 @@ const Metrics = props => {
 						},
 					},
 				);
-				setId(response.data?.[0]?._source.stream_id);
 				setMetrics(response.data);
 			} catch (e) {
-				if (e.response.status === 401) {
+				if (e.response?.status === 401) {
 					signOut();
 					console.log('Unauthenticated');
 				} else {
@@ -123,7 +118,7 @@ const Metrics = props => {
 				setCount(response.data);
 				setPage(1);
 			} catch (e) {
-				if (e.response.status === 401) {
+				if (e.response?.status === 401) {
 					signOut();
 					console.log('Unauthenticated');
 				} else {
@@ -167,7 +162,7 @@ const Metrics = props => {
 			</Content>
 			<Explorer
 				{...props}
-				stream={stream}
+				streams={streams}
 				filters={filters}
 				setFilters={setFilters}
 				selectedFilters={selectedFilters}

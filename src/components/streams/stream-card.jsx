@@ -7,7 +7,7 @@ const { Meta } = Card;
 const StreamCard = props => {
 	const { stream, path } = props;
 	return (
-		<Link to={`${path}?id=${stream.source._id}`} key={stream._id}>
+		<Link to={`${path}?id=${stream._id}`} key={stream._id}>
 			<Card style={{ borderRadius: '8px', margin: '8px 0px' }}>
 				<p>Created By: {stream.user.name}</p>
 				<p>
